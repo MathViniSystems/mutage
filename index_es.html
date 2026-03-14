@@ -547,6 +547,7 @@
   </div>
 
   <script>
+  document.addEventListener("DOMContentLoaded", function () {
     const kSugarPerDeg = 16.83;
     const degPotColumns = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
@@ -604,27 +605,31 @@
     };
 
     const ids = [
-      "volumeHl","useSimpleMode","degPotInitial","density","degFinalTarget","alcoolStrength",
-      "acqTargetAtStop","srTarget","degCurrentSimple","degTargetSimple","alcoolStrengthSimple"
+      "volumeHl", "useSimpleMode", "degPotInitial", "density", "degFinalTarget", "alcoolStrength",
+      "acqTargetAtStop", "srTarget", "degCurrentSimple", "degTargetSimple", "alcoolStrengthSimple"
     ];
 
     const $ = (id) => document.getElementById(id);
-    const fmt = (v, d=2, unit="") => v == null || Number.isNaN(v) ? "-" : `${Number(v).toFixed(d).replace(".", ",")}${unit}`;
-    const sortedDensities = () => Object.keys(ifvSugarTable).map(Number).sort((a,b)=>a-b);
+
+    function fmt(v, d = 2) {
+      if (v == null || Number.isNaN(v)) return "-";
+      return Number(v).toFixed(d).replace(".", ",");
+    }
+
+    function sortedDensities() {
+      return Object.keys(ifvSugarTable).map(Number).sort((a, b) => a - b);
+    }
 
     function parseValue(s) {
       if (s == null) return null;
       const cleaned = String(s)
         .trim()
-        .replaceAll("°", "")
-        .replaceAll("%", "")
-        .replaceAll("vol", "")
-        .replaceAll("VOL", "")
-        .replaceAll("hl", "")
-        .replaceAll("hL", "")
-        .replaceAll("HL", "")
-        .replaceAll(" ", "")
-        .replaceAll(",", ".");
+        .replace(/°/g, "")
+        .replace(/%/g, "")
+        .replace(/vol/gi, "")
+        .replace(/hl/gi, "")
+        .replace(/\s+/g, "")
+        .replace(/,/g, ".");
       const filtered = cleaned.replace(/[^0-9.\-]/g, "");
       if (!filtered) return null;
       const n = Number(filtered);
@@ -634,8 +639,8 @@
     function parseDensity(s) {
       const v = parseValue(s);
       if (v == null) return null;
-      if (v >= 900 && v <= 1200) return v / 1000.0;
-      if (v >= 90 && v <= 120) return v / 100.0;
+      if (v >= 900 && v <= 1200) return v / 1000;
+      if (v >= 90 && v <= 120) return v / 100;
       return v;
     }
 
@@ -647,14 +652,12 @@
 
     function degIndexFloor(degPot) {
       const clamped = Math.min(20, Math.max(11, degPot));
-      const f = Math.floor(clamped);
-      return Math.min(9, Math.max(0, f - 11));
+      return Math.min(9, Math.max(0, Math.floor(clamped) - 11));
     }
 
     function degIndexCeil(degPot) {
       const clamped = Math.min(20, Math.max(11, degPot));
-      const c = Math.ceil(clamped);
-      return Math.min(9, Math.max(0, c - 11));
+      return Math.min(9, Math.max(0, Math.ceil(clamped) - 11));
     }
 
     function rowSugarAtDegPot(row, degPot) {
@@ -669,7 +672,9 @@
       return lerp(d0, v0, d1, v1, degPot);
     }
 
-    function sugarFromTable({ density, degPotInitial }) {
+    function sugarFromTable(obj) {
+      const density = obj.density;
+      const degPotInitial = obj.degPotInitial;
       const densKeys = sortedDensities();
       if (!densKeys.length) return null;
 
@@ -680,11 +685,16 @@
         return rowSugarAtDegPot(ifvSugarTable[densKeys[densKeys.length - 1].toFixed(3)], degPotInitial);
       }
 
-      let lo = densKeys[0], hi = densKeys[densKeys.length - 1];
+      let lo = densKeys[0];
+      let hi = densKeys[densKeys.length - 1];
+
       for (let i = 0; i < densKeys.length - 1; i++) {
-        const a = densKeys[i], b = densKeys[i + 1];
+        const a = densKeys[i];
+        const b = densKeys[i + 1];
         if (density >= a && density <= b) {
-          lo = a; hi = b; break;
+          lo = a;
+          hi = b;
+          break;
         }
       }
 
@@ -695,7 +705,9 @@
       return lerp(lo, sLo, hi, sHi, density);
     }
 
-    function densityForSugar({ degPotInitial, sugarTargetGl }) {
+    function densityForSugar(obj) {
+      const degPotInitial = obj.degPotInitial;
+      const sugarTargetGl = obj.sugarTargetGl;
       const densKeys = sortedDensities();
       if (densKeys.length < 2) return null;
 
@@ -707,36 +719,41 @@
       }
       if (series.length < 2) return null;
 
-      const target = sugarTargetGl;
       const sMin = series[0][1];
       const sMax = series[series.length - 1][1];
 
-      if (target <= sMin) return series[0][0];
-      if (target >= sMax) return series[series.length - 1][0];
+      if (sugarTargetGl <= sMin) return series[0][0];
+      if (sugarTargetGl >= sMax) return series[series.length - 1][0];
 
       for (let i = 0; i < series.length - 1; i++) {
-        const [d0, s0] = series[i];
-        const [d1, s1] = series[i + 1];
-        if (target >= s0 && target <= s1) {
-          return lerp(s0, d0, s1, d1, target);
+        const d0 = series[i][0];
+        const s0 = series[i][1];
+        const d1 = series[i + 1][0];
+        const s1 = series[i + 1][1];
+        if (sugarTargetGl >= s0 && sugarTargetGl <= s1) {
+          return lerp(s0, d0, s1, d1, sugarTargetGl);
         }
       }
       return null;
     }
 
     function setText(id, value) {
-      $(id).textContent = value;
+      const el = $(id);
+      if (el) el.textContent = value;
     }
 
     function pushMessage(type, text) {
+      const box = $("messages");
+      if (!box) return;
       const el = document.createElement("div");
-      el.className = `msg ${type}`;
+      el.className = "msg " + type;
       el.textContent = text;
-      $("messages").appendChild(el);
+      box.appendChild(el);
     }
 
     function clearMessages() {
-      $("messages").innerHTML = "";
+      const box = $("messages");
+      if (box) box.innerHTML = "";
     }
 
     function syncModeUi() {
@@ -801,7 +818,7 @@
           if (a0 != null && a1 != null && aa != null) {
             const ok = (a1 > a0) && (aa > a1) && (a0 >= 0) && (a1 > 0) && (aa > 0);
             if (ok) {
-              const vWineL = volHl * 100.0;
+              const vWineL = volHl * 100;
               const vAddL = (vWineL * (a1 - a0)) / (aa - a1);
               alcoolToAddL = vAddL;
               alcoolToAddPerHl = vAddL / volHl;
@@ -815,13 +832,13 @@
           const aa = parseValue($("alcoolStrength").value);
 
           if (dp0 != null && dens != null && a1 != null && aa != null) {
-            const dpOk = dp0 >= 10.0 && dp0 <= 25.0;
+            const dpOk = dp0 >= 10 && dp0 <= 25;
             const densOk = dens >= 0.985 && dens <= 1.060;
-            const a1Ok = a1 > 0 && a1 <= 25.0;
-            const aaOk = aa > 0 && aa <= 100.0;
+            const a1Ok = a1 > 0 && a1 <= 25;
+            const aaOk = aa > 0 && aa <= 100;
 
             if (!dpOk || !densOk || !a1Ok || !aaOk) {
-              pushMessage("danger", "Parámetros hors plage (degré potentiel, densité, degré final ou titre alcool).");
+              pushMessage("danger", "Parámetros fuera de rango (grado potencial, densidad, grado final o graduación alcohólica).");
             } else {
               const sr = sugarFromTable({ density: dens, degPotInitial: dp0 });
               if (sr != null) {
@@ -831,7 +848,7 @@
 
                 const ok = (degAcqEst >= 0) && (a1 > degAcqEst) && (aa > a1);
                 if (ok) {
-                  const vWineL = volHl * 100.0;
+                  const vWineL = volHl * 100;
                   const vAddL = (vWineL * (a1 - degAcqEst)) / (aa - a1);
                   alcoolToAddL = vAddL;
                   alcoolToAddPerHl = vAddL / volHl;
@@ -843,35 +860,38 @@
         }
       }
 
-      setText("srEst", srEstGl == null ? "-" : `${fmt(srEstGl, 1)} g/L`);
-      setText("degRemainEst", degRemainEst == null ? "-" : `${fmt(degRemainEst, 2)} % vol`);
-      setText("degAcqEst", degAcqEst == null ? "-" : `${fmt(degAcqEst, 2)} % vol`);
+      setText("srEst", srEstGl == null ? "-" : fmt(srEstGl, 1) + " g/L");
+      setText("degRemainEst", degRemainEst == null ? "-" : fmt(degRemainEst, 2) + " % vol");
+      setText("degAcqEst", degAcqEst == null ? "-" : fmt(degAcqEst, 2) + " % vol");
 
-      setText("srTargetComputed", srTargetComputedFromAcq == null ? "-" : `${fmt(srTargetComputedFromAcq, 1)} g/L`);
-      setText("acqTargetComputed", acqTargetComputedFromSr == null ? "-" : `${fmt(acqTargetComputedFromSr, 2)} % vol`);
+      setText("srTargetComputed", srTargetComputedFromAcq == null ? "-" : fmt(srTargetComputedFromAcq, 1) + " g/L");
+      setText("acqTargetComputed", acqTargetComputedFromSr == null ? "-" : fmt(acqTargetComputedFromSr, 2) + " % vol");
       setText("densityTarget", densityTargetFromSr == null ? "-" : fmt(densityTargetFromSr, 3));
 
-      setText("alcoolToAddPerHl", alcoolToAddPerHl == null ? "-" : `${fmt(alcoolToAddPerHl, 2)} L/hL`);
-      setText("alcoolToAddL", alcoolToAddL == null ? "-" : `${fmt(alcoolToAddL, 2)} L`);
-      $("finalVolume").textContent = finalVolumeL == null ? "" : `Volumen final estimado: ${fmt(finalVolumeL, 0)} L`;
+      setText("alcoolToAddPerHl", alcoolToAddPerHl == null ? "-" : fmt(alcoolToAddPerHl, 2) + " L/hL");
+      setText("alcoolToAddL", alcoolToAddL == null ? "-" : fmt(alcoolToAddL, 2) + " L");
+
+      const finalVolumeEl = $("finalVolume");
+      if (finalVolumeEl) {
+        finalVolumeEl.textContent = finalVolumeL == null ? "" : "Volumen final estimado: " + fmt(finalVolumeL, 0) + " L";
+      }
 
       const aa = useSimpleMode ? parseValue($("alcoolStrengthSimple").value) : parseValue($("alcoolStrength").value);
-      const warningRed = aa != null && aa < 95.0;
+      const warningRed = aa != null && aa < 95;
       const finalTarget = parseValue($("degFinalTarget").value);
-      const warningOrange = !useSimpleMode && finalTarget != null && (finalTarget < 15.0 || finalTarget > 18.0);
+      const warningOrange = !useSimpleMode && finalTarget != null && (finalTarget < 15 || finalTarget > 18);
 
       if (!useSimpleMode) {
         pushMessage("info", "El modo fermentación utiliza la tabla IFV para estimar los azúcares residuales y el grado adquirido.");
       }
-
       if (warningOrange) {
-        pushMessage("warning", "Grado final fuera de los rangos habituales (~15–18 % vol): revisar el pliego de condiciones y el objetivo del vino.");
+        pushMessage("warning", "Grado final fuera de los rangos habituales (~15–18 % vol): revisa el pliego de condiciones y el objetivo del vino.");
       }
       if (warningRed) {
-        pushMessage("danger", "Título alcohólico < 95 %: potencialmente no conforme según el marco y el pliego de condiciones.");
+        pushMessage("danger", "Graduación alcohólica < 95 %: puede no ser conforme según el marco aplicado y el pliego de condiciones.");
       }
       if (volHl != null && alcoolToAddL != null && alcoolToAddL > (volHl * 100 * 0.25)) {
-        pushMessage("danger", "Cantidad de alcohol muy elevada: verificar grados, volumen y objetivo.");
+        pushMessage("danger", "Cantidad de alcohol muy elevada: revisa grados, volumen y objetivo.");
       }
       if (volHl == null || volHl <= 0) {
         pushMessage("info", "Introduce primero el volumen para obtener la cantidad total de alcohol a añadir.");
@@ -891,38 +911,41 @@
     }
 
     function resetAll() {
-      const defaults = {
-        volumeHl: "",
-        degPotInitial: "",
-        density: "",
-        degFinalTarget: "",
-        alcoolStrength: "96,5",
-        acqTargetAtStop: "",
-        srTarget: "",
-        degCurrentSimple: "",
-        degTargetSimple: "",
-        alcoolStrengthSimple: "96,5"
-      };
       $("useSimpleMode").checked = false;
-      Object.entries(defaults).forEach(([k,v]) => $(k).value = v);
+      $("volumeHl").value = "";
+      $("degPotInitial").value = "";
+      $("density").value = "";
+      $("degFinalTarget").value = "";
+      $("alcoolStrength").value = "96,5";
+      $("acqTargetAtStop").value = "";
+      $("srTarget").value = "";
+      $("degCurrentSimple").value = "";
+      $("degTargetSimple").value = "";
+      $("alcoolStrengthSimple").value = "96,5";
       recalc();
     }
 
     function showHelp() {
       alert(
-       "Ayuda mutage – modo fermentación\n\n" +
-"• Esta calculadora utiliza la convención 1 % vol = 16,83 g/L de azúcar para relacionar el alcohol potencial restante y los azúcares residuales.\n" +
-"• En modo fermentación, una tabla permite estimar el azúcar residual según la densidad y el grado potencial inicial.\n" +
-"• Confirmar siempre los resultados mediante análisis y ajustarlos según el pliego de condiciones."
-);
+        "Ayuda mutage – modo fermentación\n\n" +
+        "• Esta calculadora utiliza la convención 1 % vol = 16,83 g/L de azúcar para relacionar el alcohol potencial restante y los azúcares residuales.\n" +
+        "• En modo fermentación, la tabla permite estimar el azúcar residual según la densidad y el grado potencial inicial.\n" +
+        "• Confirmar siempre los resultados mediante análisis y ajustarlos según el pliego de condiciones."
+      );
     }
 
-    ids.forEach(id => $(id).addEventListener("input", recalc));
-    $("helpBtn").addEventListener("click", showHelp);
-    $("exampleBtn").addEventListener("click", fillExample);
-    $("resetBtn").addEventListener("click", resetAll);
+    ids.forEach(function (id) {
+      const el = $(id);
+      if (el) el.addEventListener("input", recalc);
+    });
+
+    if ($("helpBtn")) $("helpBtn").addEventListener("click", showHelp);
+    if ($("exampleBtn")) $("exampleBtn").addEventListener("click", fillExample);
+    if ($("resetBtn")) $("resetBtn").addEventListener("click", resetAll);
 
     recalc();
-  </script>
+  });
+</script>
+ 
 </body>
 </html>
