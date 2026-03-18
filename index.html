@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -13,7 +12,7 @@
       --text: #111111;
       --teal: #2A6F78;
       --deep: #3C3F42;
-      --tan: #D2B48C;
+      --tan: #B99367;
       --shadow: rgba(0,0,0,0.15);
       --danger: #B3261E;
       --warning: #A66C22;
@@ -85,10 +84,20 @@
       border: 1px solid var(--border);
     }
 
+    .card.brown {
+      background: linear-gradient(135deg, var(--tan), #a98256);
+      color: var(--white);
+      border: none;
+    }
+
     .section-title {
       margin: 0 0 14px;
       font-size: 1.2rem;
       color: var(--deep);
+    }
+
+    .card.brown .section-title {
+      color: var(--white);
     }
 
     .muted {
@@ -96,6 +105,10 @@
       color: #4f5558;
       font-size: 0.96rem;
       line-height: 1.45;
+    }
+
+    .card.brown .muted {
+      color: rgba(255,255,255,0.92);
     }
 
     .row {
@@ -200,23 +213,6 @@
       transform: translateX(26px);
     }
 
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 7px 11px;
-      border-radius: 999px;
-      background: rgba(42,111,120,0.12);
-      color: var(--teal);
-      font-family: Quicksand, Arial, sans-serif;
-      font-size: 0.9rem;
-      margin-top: 4px;
-    }
-
-    .results-primary {
-      background: linear-gradient(135deg, var(--tan), #b99367);
-      color: var(--white);
-    }
-
     .big-number {
       font-size: clamp(2rem, 5vw, 3rem);
       line-height: 1;
@@ -235,10 +231,21 @@
       font-family: Quicksand, Arial, sans-serif;
     }
 
+    .card.brown .inline-result {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: var(--white);
+      backdrop-filter: blur(2px);
+    }
+
     .inline-result .value {
       font-size: 1.15rem;
       color: var(--deep);
       font-weight: 700;
+    }
+
+    .card.brown .inline-result .value {
+      color: var(--white);
     }
 
     .stats {
@@ -246,24 +253,6 @@
       grid-template-columns: 1fr;
       gap: 10px;
       margin-top: 12px;
-    }
-
-    .stat {
-      background: rgba(255,255,255,0.55);
-      border: 1px solid rgba(255,255,255,0.35);
-      border-radius: 16px;
-      padding: 12px 14px;
-    }
-
-    .stat .k {
-      font-family: Quicksand, Arial, sans-serif;
-      font-size: 0.92rem;
-      opacity: 0.92;
-      margin-bottom: 4px;
-    }
-
-    .stat .v {
-      font-size: 1.1rem;
     }
 
     .messages {
@@ -297,11 +286,36 @@
       border: 1px solid rgba(42,111,120,0.16);
     }
 
+    .card.brown .msg.warning {
+      background: rgba(255,255,255,0.18);
+      color: #fff6df;
+      border: 1px solid rgba(255,255,255,0.22);
+    }
+
+    .card.brown .msg.danger {
+      background: rgba(120, 20, 20, 0.28);
+      color: #fff0f0;
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+
+    .card.brown .msg.info {
+      background: rgba(255,255,255,0.12);
+      color: #f7f7f7;
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+
     .btn-row {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
       margin-top: 14px;
+    }
+
+    .btn-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-end;
     }
 
     button {
@@ -338,14 +352,6 @@
       line-height: 1.5;
     }
 
-    .foot {
-      margin-top: 18px;
-      font-family: Quicksand, Arial, sans-serif;
-      font-size: 0.92rem;
-      color: #5b6063;
-      line-height: 1.5;
-    }
-
     .center {
       text-align: center;
     }
@@ -356,32 +362,24 @@
       font-family: Quicksand, Arial, sans-serif;
       color: #687073;
       margin-bottom: 10px;
-    }
-
-    .code-note {
-      margin-top: 18px;
-      padding: 16px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.65);
-      border: 1px dashed #cab799;
-      font-family: Quicksand, Arial, sans-serif;
-      line-height: 1.45;
+      font-weight: 700;
     }
 
     .topbar {
       display: flex;
       justify-content: space-between;
       gap: 12px;
-      align-items: center;
+      align-items: flex-start;
       margin-bottom: 14px;
       flex-wrap: wrap;
     }
 
     .brand {
       color: var(--white);
-      opacity: 0.85;
+      opacity: 0.92;
       font-family: Quicksand, Arial, sans-serif;
       letter-spacing: 0.02em;
+      max-width: 700px;
     }
   </style>
 </head>
@@ -389,14 +387,13 @@
   <div class="wrap">
     <section class="hero">
       <div class="topbar">
-        <div class="brand">Mini sitio HTML compatible con GitHub Pages</div>
-        <button class="btn-secondary" type="button" id="helpBtn">Ayuda cálculo</button>
+        <div class="brand">Mini calculateur online extrait du logiciel VS Winery Management</div>
+        <div class="btn-stack">
+          <button class="btn-secondary" type="button" id="helpBtn">Ayuda cálculo</button>
+          <button class="btn-secondary" type="button" id="resetBtn">Reiniciar</button>
+        </div>
       </div>
       <h1>Calculadora de mutage – adición de alcohol</h1>
-      <p>
-        Este mini sitio reproduce tu calculadora Flutter en HTML, CSS y JavaScript puro.
-        Funciona en modo fermentación con tabla densidad/SR o en modo simple si ya se conoce el grado alcohólico adquirido.
-      </p>
     </section>
 
     <div class="grid two">
@@ -415,7 +412,7 @@
               <input type="checkbox" id="useSimpleMode" />
               <span class="slider"></span>
             </label>
-            <div>Ya conozco el grado alcohólico actual</div>
+            <div>Je connais le degré auquel je veux muter et je mesure par le degré</div>
           </div>
         </div>
 
@@ -429,7 +426,7 @@
                 <input id="degPotInitial" inputmode="decimal" placeholder="Ex : 18,0" />
               </div>
               <div>
-                <label for="density">Densidad actual</label>
+                <label for="density">Densidad de mutage</label>
                 <input id="density" inputmode="decimal" placeholder="Ex : 1020 ou 1,020 ou 1.020" />
               </div>
             </div>
@@ -479,14 +476,49 @@
           </div>
         </div>
 
+        <div class="card">
+          <div class="btn-row">
+            <button class="btn-primary" type="button" id="exampleBtn">Rellenar un ejemplo</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="card brown">
+          <h2 class="section-title">Alcohol a añadir</h2>
+
+          <div class="inline-result">
+            <span>Dosis de alcohol (L/hL)</span>
+            <span class="value" id="alcoolToAddPerHl">-</span>
+          </div>
+
+          <div style="height:10px;"></div>
+
+          <div class="big-number" id="alcoolToAddL">-</div>
+          <div id="finalVolume" class="muted"></div>
+
+          <div class="stats" style="margin-top:16px;">
+            <div class="inline-result">
+              <span>Alcohol adquirido retenido para el cálculo</span>
+              <span class="value" id="degAcqUsed">-</span>
+            </div>
+            <div class="inline-result">
+              <span>Azúcar residual retenido para el cálculo</span>
+              <span class="value" id="srUsed">-</span>
+            </div>
+          </div>
+
+          <div class="messages" id="messages"></div>
+        </div>
+
         <div class="card" id="decisionCard">
-          <h2 class="section-title">Densidad en el momento del mutage</h2>
+          <h2 class="section-title">Ajuste a los objetivos objetivo</h2>
           <div class="row three">
             <div>
               <label for="acqTargetAtStop">Alcohol adquirido deseado en el mutage (% vol)</label>
               <input id="acqTargetAtStop" inputmode="decimal" placeholder="Ex : 13,0" />
             </div>
-            <div class="or-box">OU</div>
+            <div class="or-box">O</div>
             <div>
               <label for="srTarget">Azúcar residual objetivo (g/L)</label>
               <input id="srTarget" inputmode="decimal" placeholder="Ex : 84" />
@@ -497,49 +529,8 @@
             <div class="inline-result"><span>Alcohol adquirido calculado</span><span class="value" id="acqTargetComputed">-</span></div>
             <div class="inline-result"><span>Densidad objetivo estimada</span><span class="value" id="densityTarget">-</span></div>
           </div>
-        </div>
-      </section>
-
-      <section class="grid">
-        <div class="card alt">
-          <h2 class="section-title">Dosis de alcohol</h2>
-          <div class="inline-result">
-            <span>Dosis de alcohol (L/hL)</span>
-            <span class="value" id="alcoolToAddPerHl">-</span>
-          </div>
-        </div>
-
-        <div class="card results-primary">
-          <h2 class="section-title" style="color:white;">Alcohol a añadir</h2>
-          <div class="big-number" id="alcoolToAddL">-</div>
-          <div id="finalVolume" class="muted" style="color: rgba(255,255,255,0.92);"></div>
-
-          <div class="messages" id="messages"></div>
-        </div>
-
-        <div class="card">
-          <h2 class="section-title">Referencias y lógica del cálculo</h2>
-          <div class="muted">
-            La calculadora utiliza la misma convención que tu código:
-            1 % vol potentiel non fermenté ≈ 16,83 g/L de sucre.
-          </div>
-          <div class="code-note">
-            En modo fermentación:
-            primero se estiman los azúcares residuales con la tabla IFV según la densidad y el grado potencial inicial,
-            y luego se estima el grado adquirido antes de aplicar la fórmula de mutage.
-            <br><br>
-            En modo simple:
-            se aplica directamente la fórmula de dilución a partir del grado actual conocido.
-          </div>
-
-          <div class="btn-row">
-            <button class="btn-primary" type="button" id="exampleBtn">Rellenar un ejemplo</button>
-            <button class="btn-secondary" type="button" id="resetBtn">Reiniciar</button>
-          </div>
-
-          <div class="foot">
-            Les fonctions “To-do list”, “enregistrer un ajout” et le stockage local Flutter n’ont pas été reprises ici,
-            car GitHub Pages héberge un site statique. En revanche, tout le cœur du calcul est bien présent.
+          <div class="help-box">
+            Si rellenas uno de estos dos campos, la calculadora ajusta automáticamente la dosis de alcohol para respetar el grado final objetivo en ese punto de mutage.
           </div>
         </div>
       </section>
@@ -791,6 +782,9 @@
       let srTargetComputedFromAcq = null;
       let acqTargetComputedFromSr = null;
 
+      let degAcqUsed = null;
+      let srUsed = null;
+
       const dp0Decision = parseValue($("degPotInitial").value);
       const acqTarget = $("acqTargetAtStop").value.trim() === "" ? null : parseValue($("acqTargetAtStop").value);
       const srTargetManual = $("srTarget").value.trim() === "" ? null : parseValue($("srTarget").value);
@@ -804,7 +798,10 @@
         acqTargetComputedFromSr = dp0Decision - (srTargetManual / kSugarPerDeg);
       }
 
-      const srTarget = (srTargetManual != null && srTargetManual >= 0) ? srTargetManual : srTargetComputedFromAcq;
+      const srTarget = (srTargetManual != null && srTargetManual >= 0)
+        ? srTargetManual
+        : srTargetComputedFromAcq;
+
       if (dp0Decision != null && srTarget != null) {
         densityTargetFromSr = densityForSugar({ degPotInitial: dp0Decision, sugarTargetGl: srTarget });
       }
@@ -823,6 +820,8 @@
               alcoolToAddL = vAddL;
               alcoolToAddPerHl = vAddL / volHl;
               finalVolumeL = vWineL + vAddL;
+              degAcqUsed = a0;
+              srUsed = null;
             }
           }
         } else {
@@ -831,28 +830,50 @@
           const a1 = parseValue($("degFinalTarget").value);
           const aa = parseValue($("alcoolStrength").value);
 
-          if (dp0 != null && dens != null && a1 != null && aa != null) {
+          if (dp0 != null && a1 != null && aa != null) {
             const dpOk = dp0 >= 10 && dp0 <= 25;
-            const densOk = dens >= 0.985 && dens <= 1.060;
             const a1Ok = a1 > 0 && a1 <= 25;
             const aaOk = aa > 0 && aa <= 100;
 
-            if (!dpOk || !densOk || !a1Ok || !aaOk) {
-              pushMessage("danger", "Parámetros fuera de rango (grado potencial, densidad, grado final o graduación alcohólica).");
+            if (!dpOk || !a1Ok || !aaOk) {
+              pushMessage("danger", "Parámetros fuera de rango (grado potencial, grado final o graduación alcohólica).");
             } else {
-              const sr = sugarFromTable({ density: dens, degPotInitial: dp0 });
-              if (sr != null) {
-                srEstGl = sr;
-                degRemainEst = sr / kSugarPerDeg;
-                degAcqEst = dp0 - degRemainEst;
+              if (dens != null) {
+                const densOk = dens >= 0.985 && dens <= 1.060;
+                if (!densOk) {
+                  pushMessage("danger", "Densidad fuera de rango.");
+                } else {
+                  const sr = sugarFromTable({ density: dens, degPotInitial: dp0 });
+                  if (sr != null) {
+                    srEstGl = sr;
+                    degRemainEst = sr / kSugarPerDeg;
+                    degAcqEst = dp0 - degRemainEst;
+                  }
+                }
+              }
 
-                const ok = (degAcqEst >= 0) && (a1 > degAcqEst) && (aa > a1);
+              if (acqTarget != null && dp0 != null) {
+                degAcqUsed = acqTarget;
+                const remain = dp0 - acqTarget;
+                srUsed = remain >= 0 ? remain * kSugarPerDeg : null;
+              } else if (srTarget != null && dp0 != null) {
+                srUsed = srTarget;
+                degAcqUsed = dp0 - (srTarget / kSugarPerDeg);
+              } else if (degAcqEst != null) {
+                degAcqUsed = degAcqEst;
+                srUsed = srEstGl;
+              }
+
+              if (degAcqUsed != null) {
+                const ok = (degAcqUsed >= 0) && (a1 > degAcqUsed) && (aa > a1);
                 if (ok) {
                   const vWineL = volHl * 100;
-                  const vAddL = (vWineL * (a1 - degAcqEst)) / (aa - a1);
+                  const vAddL = (vWineL * (a1 - degAcqUsed)) / (aa - a1);
                   alcoolToAddL = vAddL;
                   alcoolToAddPerHl = vAddL / volHl;
                   finalVolumeL = vWineL + vAddL;
+                } else {
+                  pushMessage("danger", "El objetivo elegido para el mutage no es compatible con el grado final objetivo o con la graduación del alcohol añadido.");
                 }
               }
             }
@@ -871,6 +892,9 @@
       setText("alcoolToAddPerHl", alcoolToAddPerHl == null ? "-" : fmt(alcoolToAddPerHl, 2) + " L/hL");
       setText("alcoolToAddL", alcoolToAddL == null ? "-" : fmt(alcoolToAddL, 2) + " L");
 
+      setText("degAcqUsed", degAcqUsed == null ? "-" : fmt(degAcqUsed, 2) + " % vol");
+      setText("srUsed", srUsed == null ? "-" : fmt(srUsed, 1) + " g/L");
+
       const finalVolumeEl = $("finalVolume");
       if (finalVolumeEl) {
         finalVolumeEl.textContent = finalVolumeL == null ? "" : "Volumen final estimado: " + fmt(finalVolumeL, 0) + " L";
@@ -881,9 +905,6 @@
       const finalTarget = parseValue($("degFinalTarget").value);
       const warningOrange = !useSimpleMode && finalTarget != null && (finalTarget < 15 || finalTarget > 18);
 
-      if (!useSimpleMode) {
-        pushMessage("info", "El modo fermentación utiliza la tabla IFV para estimar los azúcares residuales y el grado adquirido.");
-      }
       if (warningOrange) {
         pushMessage("warning", "Grado final fuera de los rangos habituales (~15–18 % vol): revisa el pliego de condiciones y el objetivo del vino.");
       }
@@ -930,6 +951,7 @@
         "Ayuda mutage – modo fermentación\n\n" +
         "• Esta calculadora utiliza la convención 1 % vol = 16,83 g/L de azúcar para relacionar el alcohol potencial restante y los azúcares residuales.\n" +
         "• En modo fermentación, la tabla permite estimar el azúcar residual según la densidad y el grado potencial inicial.\n" +
+        "• Si introduces un objetivo de azúcar residual o de alcohol adquirido, la dosis se recalcula automáticamente para respetar el grado final objetivo.\n" +
         "• Confirmar siempre los resultados mediante análisis y ajustarlos según el pliego de condiciones."
       );
     }
@@ -945,7 +967,6 @@
 
     recalc();
   });
-</script>
- 
+  </script>
 </body>
 </html>
